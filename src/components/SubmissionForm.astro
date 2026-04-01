@@ -1,0 +1,151 @@
+<form
+    name="word-submission"
+    method="POST"
+    data-netlify="true"
+    action="/submit/success"
+    class="space-y-6"
+>
+    <input type="hidden" name="form-name" value="word-submission" />
+
+    <div>
+        <label for="word" class="block text-sm font-medium mb-1">Word *</label>
+        <input
+            type="text"
+            id="word"
+            name="word"
+            required
+            class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+        />
+    </div>
+
+    <div>
+        <label for="meaning" class="block text-sm font-medium mb-1"
+            >Meaning *</label
+        >
+        <textarea
+            id="meaning"
+            name="meaning"
+            required
+            rows="3"
+            class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+        ></textarea>
+    </div>
+
+    <div>
+        <label for="partOfSpeech" class="block text-sm font-medium mb-1"
+            >Part of Speech</label
+        >
+        <select
+            id="partOfSpeech"
+            name="partOfSpeech"
+            class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+        >
+            <option value="">Select...</option>
+            <option value="Noun">Noun</option>
+            <option value="Verb">Verb</option>
+            <option value="Adjective">Adjective</option>
+            <option value="Adverb">Adverb</option>
+            <option value="Preposition">Preposition</option>
+        </select>
+    </div>
+
+    <fieldset class="space-y-4">
+        <legend class="text-sm font-medium">Translations</legend>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label
+                    for="greek-word"
+                    class="block text-xs text-stone-500 mb-1"
+                >
+                    🇬🇷 Greek
+                </label>
+                <input
+                    type="text"
+                    id="greek-word"
+                    name="greek-word"
+                    class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+                />
+            </div>
+            <div>
+                <label
+                    for="greek-note"
+                    class="block text-xs text-stone-500 mb-1"
+                >
+                    Pronunciation
+                </label>
+                <input
+                    type="text"
+                    id="greek-note"
+                    name="greek-note"
+                    placeholder="e.g. kairos"
+                    class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+                />
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label
+                    for="german-word"
+                    class="block text-xs text-stone-500 mb-1"
+                >
+                    🇩🇪 German
+                </label>
+                <input
+                    type="text"
+                    id="german-word"
+                    name="german-word"
+                    class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+                />
+            </div>
+            <div>
+                <label
+                    for="german-note"
+                    class="block text-xs text-stone-500 mb-1"
+                >
+                    Gender
+                </label>
+                <select
+                    id="german-note"
+                    name="german-note"
+                    class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+                >
+                    <option value="">N/A</option>
+                    <option value="masculine">Masculine</option>
+                    <option value="feminine">Feminine</option>
+                    <option value="neuter">Neuter</option>
+                </select>
+            </div>
+        </div>
+
+        <div>
+            <label for="italian-word" class="block text-xs text-stone-500 mb-1">
+                🇮🇹 Italian
+            </label>
+            <input
+                type="text"
+                id="italian-word"
+                name="italian-word"
+                class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+            />
+        </div>
+    </fieldset>
+
+    <div class="flex items-center gap-2">
+        <input
+            type="checkbox"
+            id="favourite"
+            name="favourite"
+            class="rounded"
+        />
+        <label for="favourite" class="text-sm">Mark as favourite</label>
+    </div>
+
+    <button
+        type="submit"
+        class="bg-stone-900 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-stone-700 transition-colors"
+    >
+        Submit Word
+    </button>
+</form>

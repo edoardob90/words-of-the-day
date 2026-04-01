@@ -1,0 +1,23 @@
+---
+interface Props {
+    pos: string;
+}
+
+const { pos } = Astro.props;
+
+const colors: Record<string, string> = {
+    Noun: "bg-blue-100 text-blue-800",
+    Verb: "bg-green-100 text-green-800",
+    Adjective: "bg-amber-100 text-amber-800",
+    Adverb: "bg-purple-100 text-purple-800",
+    Preposition: "bg-rose-100 text-rose-800",
+};
+
+const classes = colors[pos] ?? "bg-stone-100 text-stone-700";
+---
+
+<span
+    class={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${classes}`}
+>
+    {pos}
+</span>
