@@ -53,10 +53,11 @@ export const server = {
         await db.insert(Words).values(row);
         return { success: true, slug };
       } catch (err) {
-        console.error("[submit] DB insert error:", err);
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error("[submit] DB insert error:", msg, err);
         throw new ActionError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to save word. It may already exist.",
+          message: `Failed to save word: ${msg}`,
         });
       }
     },
