@@ -1,3 +1,4 @@
 [build]
   command = "astro build --remote"
   publish = "dist"
+  environment = { SECRETS_SCAN_OMIT_KEYS = "ASTRO_DB_REMOTE_URL,ASTRO_DB_APP_TOKEN" }
