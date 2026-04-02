@@ -36,6 +36,11 @@ export const server = {
     accept: "form",
     input: submitInputSchema,
     handler: async (input, context) => {
+      const { userId } = context.locals.auth();
+      if (!userId) {
+        throw new ActionError({ code: "UNAUTHORIZED", message: "Sign in required." });
+      }
+
       const slug = slugify(input.word);
       const now = new Date();
       const langs = buildLangs(input);
@@ -75,6 +80,11 @@ export const server = {
     accept: "form",
     input: updateInputSchema,
     handler: async (input, context) => {
+      const { userId } = context.locals.auth();
+      if (!userId) {
+        throw new ActionError({ code: "UNAUTHORIZED", message: "Sign in required." });
+      }
+
       const langs = buildLangs(input);
 
       try {
@@ -109,6 +119,11 @@ export const server = {
     accept: "form",
     input: z.object({ slug: z.string().min(1) }),
     handler: async ({ slug }, context) => {
+      const { userId } = context.locals.auth();
+      if (!userId) {
+        throw new ActionError({ code: "UNAUTHORIZED", message: "Sign in required." });
+      }
+
       try {
         await db.delete(Words).where(eq(Words.slug, slug));
         await context.cache.invalidate({ tags: ["words"] });

@@ -1,0 +1,23 @@
+---
+export const prerender = false;
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SignUp } from "@clerk/astro/components";
+---
+
+<BaseLayout title="Sign Up">
+  <div class="flex justify-center py-12">
+    <SignUp
+      appearance={{
+        variables: {
+          colorPrimary: "#44403c",
+          colorBackground: "#ffffff",
+          colorText: "#1c1917",
+          colorInputBackground: "#ffffff",
+          colorInputText: "#1c1917",
+          borderRadius: "0.5rem",
+        },
+      }}
+    />
+  </div>
+</BaseLayout>

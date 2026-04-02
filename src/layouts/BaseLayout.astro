@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import { Search } from "@lucide/astro";
+import { Show, UserButton } from "@clerk/astro/components";
 
 interface Props {
   title?: string;
@@ -44,7 +45,15 @@ const currentQ = Astro.url.searchParams.get("q") ?? "";
             />
           </form>
           <a href="/" class="hover:text-stone-600">Words</a>
-          <a href="/submit" class="hover:text-stone-600">Submit</a>
+          <Show when="signed-in">
+            <a href="/submit" class="hover:text-stone-600">Submit</a>
+          </Show>
+          <Show when="signed-out">
+            <a href="/login" class="hover:text-stone-600">Sign in</a>
+          </Show>
+          <Show when="signed-in">
+            <UserButton />
+          </Show>
         </div>
       </nav>
     </header>
