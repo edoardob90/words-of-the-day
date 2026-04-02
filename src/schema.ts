@@ -47,10 +47,7 @@ export const wordFieldsSchema = z.object({
 export const submitInputSchema = z.object({
   word: z.string().min(1),
   meaning: z.string().optional(),
-  partOfSpeech: z
-    .union([z.enum(partsOfSpeech), z.array(z.enum(partsOfSpeech))])
-    .optional()
-    .transform((v) => (v === undefined ? [] : Array.isArray(v) ? v : [v])),
+  partOfSpeech: z.array(z.enum(partsOfSpeech)).optional().default([]),
   favourite: z.boolean().optional(),
   origin: z.string().optional(),
   body: z.string().optional(),

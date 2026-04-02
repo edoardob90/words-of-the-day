@@ -3,24 +3,24 @@ import { actions } from "astro:actions";
 import { languages, partsOfSpeech, posStyles } from "../config";
 
 interface WordData {
-    slug: string;
-    word: string;
-    meaning?: string | null;
-    partOfSpeech?: unknown;
-    origin?: string | null;
-    languages?: unknown;
-    favourite?: boolean;
-    featured?: Date;
-    body?: string | null;
+  slug: string;
+  word: string;
+  meaning?: string | null;
+  partOfSpeech?: unknown;
+  origin?: string | null;
+  languages?: unknown;
+  favourite?: boolean;
+  featured?: Date;
+  body?: string | null;
 }
 
 interface Props {
-    action: "submit" | "update";
-    word?: WordData;
-    success?: boolean;
-    slug?: string;
-    errors?: Record<string, string[] | undefined>;
-    serverError?: string;
+  action: "submit" | "update";
+  word?: WordData;
+  success?: boolean;
+  slug?: string;
+  errors?: Record<string, string[] | undefined>;
+  serverError?: string;
 }
 
 const { action, word, success, slug, errors, serverError } = Astro.props;
@@ -32,181 +32,203 @@ const langEntries = Object.entries(languages);
 const currentPos = (word?.partOfSpeech as string[]) ?? [];
 const currentLangs = (word?.languages ?? {}) as Record<string, string>;
 const currentFeatured = word?.featured
-    ? word.featured.toISOString().split("T")[0]
-    : "";
+  ? word.featured.toISOString().split("T")[0]
+  : "";
 ---
 
 {
-    success && (
-        <div class="bg-green-50 border border-green-200 text-green-800 rounded-lg px-4 py-3 mb-6 text-sm">
-            {isEdit ? "Word updated!" : "Word saved!"}
-            {(slug || word?.slug) && (
-                <a
-                    href={`/${slug || word?.slug}`}
-                    class="underline font-medium ml-1"
-                >
-                    View it &rarr;
-                </a>
-            )}
-        </div>
-    )
+  success && (
+    <div class="bg-green-50 border border-green-200 text-green-800 rounded-lg px-4 py-3 mb-6 text-sm">
+      {isEdit ? "Word updated!" : "Word saved!"}
+      {(slug || word?.slug) && (
+        <a href={`/${slug || word?.slug}`} class="underline font-medium ml-1">
+          View it &rarr;
+        </a>
+      )}
+    </div>
+  )
 }
 
 {
-    serverError && (
-        <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg px-4 py-3 mb-6 text-sm">
-            {serverError}
-        </div>
-    )
+  serverError && (
+    <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg px-4 py-3 mb-6 text-sm">
+      {serverError}
+    </div>
+  )
 }
 
 {
-    errors && (
-        <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg px-4 py-3 mb-6 text-sm">
-            Please fix the errors below.
-        </div>
-    )
+  errors && (
+    <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg px-4 py-3 mb-6 text-sm">
+      Please fix the errors below.
+    </div>
+  )
 }
 
 <form method="POST" action={formAction} class="space-y-6">
-    {isEdit && <input type="hidden" name="slug" value={word!.slug} />}
+  {isEdit && <input type="hidden" name="slug" value={word!.slug} />}
 
-    <div>
-        <label for="word" class="block text-sm font-medium mb-1">Word *</label>
-        <input
+  <div>
+    <label for="word" class="block text-sm font-medium mb-1">Word *</label>
+    <input
+      type="text"
+      id="word"
+      name="word"
+      required
+      value={word?.word ?? ""}
+      class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+    />
+    {errors?.word && <p class="text-red-600 text-xs mt-1">{errors.word[0]}</p>}
+  </div>
+
+  <div>
+    <label for="meaning" class="block text-sm font-medium mb-1">
+      Meaning
+    </label>
+    <textarea
+      id="meaning"
+      name="meaning"
+      rows="3"
+      class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+      >{word?.meaning ?? ""}</textarea
+    >
+  </div>
+
+  <fieldset>
+    <legend class="block text-sm font-medium mb-2">Part of Speech</legend>
+    <div class="flex flex-wrap gap-2">
+      {
+        partsOfSpeech.map((p) => {
+          const s = posStyles[p];
+          const isChecked = currentPos.includes(p);
+          return (
+            <label class="cursor-pointer pos-chip">
+              <input
+                type="checkbox"
+                name="partOfSpeech"
+                value={p}
+                checked={isChecked}
+                class="sr-only peer"
+              />
+              <span
+                class:list={["chip", isChecked ? s.active : [s.base, s.hover]]}
+              >
+                {p}
+              </span>
+            </label>
+          );
+        })
+      }
+    </div>
+  </fieldset>
+
+  <fieldset class="space-y-4">
+    <legend class="text-sm font-medium">Translations</legend>
+    {
+      langEntries.map(([key, { name, emoji }]) => (
+        <div>
+          <label for={key} class="block text-xs text-stone-500 mb-1">
+            {emoji} {name}
+          </label>
+          <input
             type="text"
-            id="word"
-            name="word"
-            required
-            value={word?.word ?? ""}
+            id={key}
+            name={key}
+            value={currentLangs[key] ?? ""}
             class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
-        />
-        {
-            errors?.word && (
-                <p class="text-red-600 text-xs mt-1">{errors.word[0]}</p>
-            )
-        }
-    </div>
-
-    <div>
-        <label for="meaning" class="block text-sm font-medium mb-1">
-            Meaning
-        </label>
-        <textarea
-            id="meaning"
-            name="meaning"
-            rows="3"
-            class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
-            >{word?.meaning ?? ""}</textarea
-        >
-    </div>
-
-    <fieldset>
-        <legend class="block text-sm font-medium mb-2">Part of Speech</legend>
-        <div class="flex flex-wrap gap-2">
-            {
-                partsOfSpeech.map((p) => {
-                    const s = posStyles[p];
-                    const checkedActive = s.active.split(" ").map((c) => `peer-checked:${c}`).join(" ");
-                    return (
-                        <label class="cursor-pointer">
-                            <input
-                                type="checkbox"
-                                name="partOfSpeech"
-                                value={p}
-                                checked={currentPos.includes(p)}
-                                class="sr-only peer"
-                            />
-                            <span class:list={[
-                                "inline-block text-xs font-medium px-3 py-1 rounded-full transition-colors",
-                                s.base, s.hover, checkedActive,
-                            ]}>{p}</span>
-                        </label>
-                    );
-                })
-            }
+          />
         </div>
-    </fieldset>
+      ))
+    }
+  </fieldset>
 
-    <fieldset class="space-y-4">
-        <legend class="text-sm font-medium">Translations</legend>
-        {
-            langEntries.map(([key, { name, emoji }]) => (
-                <div>
-                    <label for={key} class="block text-xs text-stone-500 mb-1">
-                        {emoji} {name}
-                    </label>
-                    <input
-                        type="text"
-                        id={key}
-                        name={key}
-                        value={currentLangs[key] ?? ""}
-                        class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
-                    />
-                </div>
-            ))
-        }
-    </fieldset>
+  <div>
+    <label for="body" class="block text-sm font-medium mb-1">Notes</label>
+    <p class="text-xs text-stone-400 mb-1">
+      Examples, usage notes, etymology — Markdown supported.
+    </p>
+    <textarea
+      id="body"
+      name="body"
+      rows="4"
+      class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-stone-400"
+      >{word?.body ?? ""}</textarea
+    >
+  </div>
 
-    <div>
-        <label for="body" class="block text-sm font-medium mb-1">Notes</label>
-        <p class="text-xs text-stone-400 mb-1">
-            Examples, usage notes, etymology — Markdown supported.
-        </p>
-        <textarea
-            id="body"
-            name="body"
-            rows="4"
-            class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-stone-400"
-            >{word?.body ?? ""}</textarea
-        >
-    </div>
+  <div>
+    <label for="featured" class="block text-sm font-medium mb-1">
+      Featured date
+    </label>
+    <p class="text-xs text-stone-400 mb-1">
+      When this word was picked as word of the day. Defaults to today.
+    </p>
+    <input
+      type="date"
+      id="featured"
+      name="featured"
+      value={currentFeatured}
+      class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+    />
+  </div>
 
-    <div>
-        <label for="featured" class="block text-sm font-medium mb-1">
-            Featured date
-        </label>
-        <p class="text-xs text-stone-400 mb-1">
-            When this word was picked as word of the day. Defaults to today.
-        </p>
-        <input
-            type="date"
-            id="featured"
-            name="featured"
-            value={currentFeatured}
-            class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
-        />
-    </div>
+  <div class="flex items-center gap-2">
+    <input
+      type="checkbox"
+      id="favourite"
+      name="favourite"
+      checked={word?.favourite ?? false}
+      class="rounded"
+    />
+    <label for="favourite" class="text-sm">Mark as favourite</label>
+  </div>
 
-    <div class="flex items-center gap-2">
-        <input
-            type="checkbox"
-            id="favourite"
-            name="favourite"
-            checked={word?.favourite ?? false}
-            class="rounded"
-        />
-        <label for="favourite" class="text-sm">Mark as favourite</label>
-    </div>
-
-    <div class="flex items-center justify-between">
+  <div class="flex items-center justify-between">
+    <button
+      type="submit"
+      class="bg-stone-900 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-stone-700 transition-colors"
+    >
+      {isEdit ? "Save Changes" : "Submit Word"}
+    </button>
+    {
+      isEdit && (
         <button
-            type="submit"
-            class="bg-stone-900 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-stone-700 transition-colors"
+          type="submit"
+          formaction={`${actions.remove}`}
+          class="bg-red-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+          onclick="return confirm('Delete this word permanently?')"
         >
-            {isEdit ? "Save Changes" : "Submit Word"}
+          Delete
         </button>
-        {
-            isEdit && (
-                <button
-                    type="submit"
-                    formaction={`${actions.remove}`}
-                    class="bg-red-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
-                    onclick="return confirm('Delete this word permanently?')"
-                >
-                    Delete
-                </button>
-            )
-        }
-    </div>
+      )
+    }
+  </div>
 </form>
+
+<style>
+  @reference "tailwindcss";
+  .chip {
+    @apply inline-block text-xs font-medium px-3 py-1 rounded-full transition-colors;
+  }
+</style>
+
+<script is:inline define:vars={{ posStyles }}>
+  document.querySelectorAll(".pos-chip input").forEach((input) => {
+    input.addEventListener("change", () => {
+      const span = input.nextElementSibling;
+      const s = posStyles[input.value];
+      if (!s) return;
+      const all = [
+        ...s.base.split(" "),
+        ...s.hover.split(" "),
+        ...s.active.split(" "),
+      ];
+      span.classList.remove(...all);
+      if (input.checked) {
+        span.classList.add(...s.active.split(" "));
+      } else {
+        span.classList.add(...s.base.split(" "), ...s.hover.split(" "));
+      }
+    });
+  });
+</script>
