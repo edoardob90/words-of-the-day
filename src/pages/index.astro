@@ -5,21 +5,31 @@ import { getWords, enrichLanguages, getPosCounts } from "../lib/words";
 import { partsOfSpeech } from "../config";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import WordCard from "../components/WordCard.astro";
+import FilterChip from "../components/FilterChip.astro";
 
 const q = Astro.url.searchParams.get("q") ?? undefined;
 const pos = Astro.url.searchParams.get("pos") ?? undefined;
+const filter = Astro.url.searchParams.get("filter") ?? undefined;
 
 // Fetch words based on the search query param
 const allWords = await getWords({ q });
-const counts = getPosCounts(allWords);
-const words = pos
-  ? allWords.filter((w) => (w.partOfSpeech as string[]).includes(pos))
-  : allWords;
+const posCounts = getPosCounts(allWords);
 
-function chipHref(p?: string) {
+const incompleteCount = allWords.filter((w) => !w.isComplete).length;
+const starredCount = allWords.filter((w) => w.favourite).length;
+
+// Apply filter and POS in memory
+let words = allWords;
+if (filter === "incomplete") words = words.filter((w) => !w.isComplete);
+if (filter === "starred") words = words.filter((w) => w.favourite);
+if (pos)
+  words = words.filter((w) => (w.partOfSpeech as string[]).includes(pos));
+
+function chipHref(opts?: { pos?: string; filter?: string }) {
   const params = new URLSearchParams();
   if (q) params.set("q", q);
-  if (p) params.set("pos", p);
+  if (opts?.pos) params.set("pos", opts.pos);
+  if (opts?.filter) params.set("filter", opts.filter);
   const qs = params.toString();
   return qs ? `/?${qs}` : "/";
 }
@@ -32,7 +42,7 @@ function chipHref(p?: string) {
         {q ? `Results for "${q}"` : "All Words"}
       </h1>
       {
-        (q || pos) && (
+        (q || pos || filter) && (
           <a href="/" class="text-sm text-stone-500 hover:text-stone-700">
             Clear filters
           </a>
@@ -40,41 +50,37 @@ function chipHref(p?: string) {
       }
     </div>
 
-    <div class="flex flex-wrap gap-2">
-      <a
-        href={chipHref()}
-        class:list={[
-          "text-xs px-3 py-1 rounded-full transition-colors",
-          !pos
-            ? "bg-stone-900 text-white"
-            : "bg-stone-100 text-stone-600 hover:bg-stone-200",
-        ]}
-      >
-        All
-      </a>
-      {
-        partsOfSpeech.map((p) =>
-          counts[p] ? (
-            <a
-              href={chipHref(p)}
-              class:list={[
-                "text-xs px-3 py-1 rounded-full transition-colors",
-                pos === p
-                  ? "bg-stone-900 text-white"
-                  : "bg-stone-100 text-stone-600 hover:bg-stone-200",
-              ]}
-            >
-              {p}
-              <span
-                class="ml-1 text-stone-500"
-                title={`${counts[p] ?? 0} words with part of speech "${p}"`}
-              >
-                ({counts[p] ?? 0})
-              </span>
-            </a>
-          ) : null,
-        )
-      }
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <div class="flex flex-wrap gap-2">
+        <FilterChip href={chipHref()} active={!filter && !pos}>
+          All ({allWords.length})
+        </FilterChip>
+        {
+          incompleteCount !== 0 && (
+            <FilterChip href={chipHref({ filter: "incomplete" })} variant="incomplete" active={filter === "incomplete"}>
+              Incomplete ({incompleteCount})
+            </FilterChip>
+          )
+        }
+        {
+          starredCount !== 0 && (
+            <FilterChip href={chipHref({ filter: "starred" })} variant="starred" active={filter === "starred"}>
+              Starred ({starredCount})
+            </FilterChip>
+          )
+        }
+      </div>
+      <div class="flex flex-wrap gap-2">
+        {
+          partsOfSpeech.map((p) =>
+            posCounts[p] ? (
+              <FilterChip href={chipHref({ pos: p })} variant={p.toLowerCase() as any} active={pos === p}>
+                {p} ({posCounts[p] ?? 0})
+              </FilterChip>
+            ) : null,
+          )
+        }
+      </div>
     </div>
   </div>
 

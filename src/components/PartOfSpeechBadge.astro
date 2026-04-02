@@ -2,52 +2,52 @@
 import { Box, Zap, Palette, Gauge, ArrowRightLeft } from "@lucide/astro";
 
 interface Props {
-    pos: string;
+  pos: string;
 }
 
 const { pos } = Astro.props;
 
 const icons: Record<string, typeof Box> = {
-    Noun: Box,
-    Verb: Zap,
-    Adjective: Palette,
-    Adverb: Gauge,
-    Preposition: ArrowRightLeft,
+  Noun: Box,
+  Verb: Zap,
+  Adjective: Palette,
+  Adverb: Gauge,
+  Preposition: ArrowRightLeft,
 };
 
 const Icon = icons[pos];
 ---
 
 <span
-    class:list={[
-        "inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full",
-        { [pos.toLowerCase()]: true },
-    ]}
+  class:list={[
+    "inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full",
+    { [pos.toLowerCase()]: true },
+  ]}
 >
-    {Icon && <Icon size={12} />}
-    {pos}
+  {Icon && <Icon size={12} />}
+  {pos}
 </span>
 
 <style>
-    @reference "tailwindcss";
+  @reference "tailwindcss";
 
-    .noun {
-        @apply bg-blue-100 text-blue-800;
-    }
+  .noun {
+    @apply bg-blue-100 text-blue-800;
+  }
 
-    .verb {
-        @apply bg-green-100 text-green-800;
-    }
+  .verb {
+    @apply bg-green-100 text-green-800;
+  }
 
-    .adjective {
-        @apply bg-amber-100 text-amber-800;
-    }
+  .adjective {
+    @apply bg-amber-100 text-amber-800;
+  }
 
-    .adverb {
-        @apply bg-purple-100 text-purple-800;
-    }
+  .adverb {
+    @apply bg-purple-100 text-purple-800;
+  }
 
-    .preposition {
-        @apply bg-rose-100 text-rose-800;
-    }
+  .preposition {
+    @apply bg-rose-100 text-rose-800;
+  }
 </style>

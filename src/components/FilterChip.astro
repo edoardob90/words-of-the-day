@@ -1,0 +1,85 @@
+---
+interface Props {
+  href: string;
+  active?: boolean;
+  variant?:
+    | "default"
+    | "incomplete"
+    | "starred"
+    | "noun"
+    | "verb"
+    | "adjective"
+    | "adverb"
+    | "preposition";
+}
+
+const { href, active = false, variant = "default" } = Astro.props;
+---
+
+<a href={href} class:list={["chip", variant, { active }]}>
+  <slot />
+</a>
+
+<style>
+  @reference "tailwindcss";
+
+  .chip {
+    @apply text-xs px-3 py-1 rounded-full transition-colors;
+  }
+
+  .default {
+    @apply bg-stone-100 text-stone-600 hover:bg-stone-200;
+  }
+  .default.active {
+    @apply bg-stone-900 text-white;
+  }
+
+  .incomplete {
+    @apply bg-red-100 text-red-600 hover:bg-red-200;
+  }
+  .incomplete.active {
+    @apply bg-red-700 text-white;
+  }
+
+  .starred {
+    @apply bg-amber-100 text-amber-600 hover:bg-amber-200;
+  }
+  .starred.active {
+    @apply bg-amber-600 text-white;
+  }
+
+  .noun {
+    @apply bg-blue-100 text-blue-800 hover:bg-blue-200;
+  }
+  .noun.active {
+    @apply bg-blue-700 text-white;
+  }
+
+  .verb {
+    @apply bg-green-100 text-green-800 hover:bg-green-200;
+  }
+  .verb.active {
+    @apply bg-green-700 text-white;
+  }
+
+  .adjective {
+    @apply bg-amber-100 text-amber-800 hover:bg-amber-200;
+  }
+  .adjective.active {
+    @apply bg-amber-600 text-white;
+  }
+
+  .adverb {
+    @apply bg-purple-100 text-purple-800 hover:bg-purple-200;
+  }
+  .adverb.active {
+    @apply bg-purple-700 text-white;
+  }
+
+  .preposition {
+    @apply bg-rose-100 text-rose-800 hover:bg-rose-200;
+  }
+  .preposition.active {
+    @apply bg-rose-700 text-white;
+  }
+</style>
