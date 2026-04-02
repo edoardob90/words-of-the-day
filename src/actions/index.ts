@@ -39,7 +39,7 @@ export const server = {
         slug,
         word: input.word,
         meaning: input.meaning ?? null,
-        partOfSpeech: input.partOfSpeech ? [input.partOfSpeech] : [],
+        partOfSpeech: input.partOfSpeech,
         origin: input.origin ?? null,
         languages: langs,
         favourite: input.favourite ?? false,
@@ -77,7 +77,7 @@ export const server = {
           .set({
             word: input.word,
             meaning: input.meaning ?? null,
-            partOfSpeech: input.partOfSpeech ? [input.partOfSpeech] : [],
+            partOfSpeech: input.partOfSpeech,
             origin: input.origin ?? null,
             languages: langs,
             favourite: input.favourite ?? false,

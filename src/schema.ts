@@ -43,11 +43,14 @@ export const wordFieldsSchema = z.object({
   origin: z.string().optional(),
 });
 
-/** Form submission schema — single POS (from select), optional body, flat language fields */
+/** Form submission schema — multiple POS (from checkboxes), optional body, flat language fields */
 export const submitInputSchema = z.object({
   word: z.string().min(1),
   meaning: z.string().optional(),
-  partOfSpeech: z.enum(partsOfSpeech).optional(),
+  partOfSpeech: z
+    .union([z.enum(partsOfSpeech), z.array(z.enum(partsOfSpeech))])
+    .optional()
+    .transform((v) => (v === undefined ? [] : Array.isArray(v) ? v : [v])),
   favourite: z.boolean().optional(),
   origin: z.string().optional(),
   body: z.string().optional(),

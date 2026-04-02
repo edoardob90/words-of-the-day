@@ -1,6 +1,6 @@
 ---
 import { actions } from "astro:actions";
-import { languages, partsOfSpeech } from "../config";
+import { languages, partsOfSpeech, posStyles } from "../config";
 
 interface WordData {
     slug: string;
@@ -29,8 +29,7 @@ const isEdit = action === "update";
 const formAction = isEdit ? actions.update : actions.submit;
 const langEntries = Object.entries(languages);
 
-const pos = word?.partOfSpeech as string[] | undefined;
-const currentPos = pos?.[0] ?? "";
+const currentPos = (word?.partOfSpeech as string[]) ?? [];
 const currentLangs = (word?.languages ?? {}) as Record<string, string>;
 const currentFeatured = word?.featured
     ? word.featured.toISOString().split("T")[0]
@@ -102,25 +101,32 @@ const currentFeatured = word?.featured
         >
     </div>
 
-    <div>
-        <label for="partOfSpeech" class="block text-sm font-medium mb-1">
-            Part of Speech
-        </label>
-        <select
-            id="partOfSpeech"
-            name="partOfSpeech"
-            class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
-        >
-            <option value="">Select...</option>
+    <fieldset>
+        <legend class="block text-sm font-medium mb-2">Part of Speech</legend>
+        <div class="flex flex-wrap gap-2">
             {
-                partsOfSpeech.map((p) => (
-                    <option value={p} selected={p === currentPos}>
-                        {p}
-                    </option>
-                ))
+                partsOfSpeech.map((p) => {
+                    const s = posStyles[p];
+                    const checkedActive = s.active.split(" ").map((c) => `peer-checked:${c}`).join(" ");
+                    return (
+                        <label class="cursor-pointer">
+                            <input
+                                type="checkbox"
+                                name="partOfSpeech"
+                                value={p}
+                                checked={currentPos.includes(p)}
+                                class="sr-only peer"
+                            />
+                            <span class:list={[
+                                "inline-block text-xs font-medium px-3 py-1 rounded-full transition-colors",
+                                s.base, s.hover, checkedActive,
+                            ]}>{p}</span>
+                        </label>
+                    );
+                })
             }
-        </select>
-    </div>
+        </div>
+    </fieldset>
 
     <fieldset class="space-y-4">
         <legend class="text-sm font-medium">Translations</legend>

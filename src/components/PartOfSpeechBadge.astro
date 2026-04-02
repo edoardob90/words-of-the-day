@@ -1,5 +1,6 @@
 ---
 import { Box, Zap, Palette, Gauge, ArrowRightLeft } from "@lucide/astro";
+import { posStyles } from "../config";
 
 interface Props {
   pos: string;
@@ -16,38 +17,15 @@ const icons: Record<string, typeof Box> = {
 };
 
 const Icon = icons[pos];
+const colors = posStyles[pos as keyof typeof posStyles];
 ---
 
 <span
   class:list={[
     "inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full",
-    { [pos.toLowerCase()]: true },
+    colors?.base,
   ]}
 >
   {Icon && <Icon size={12} />}
   {pos}
 </span>
-
-<style>
-  @reference "tailwindcss";
-
-  .noun {
-    @apply bg-blue-100 text-blue-800;
-  }
-
-  .verb {
-    @apply bg-green-100 text-green-800;
-  }
-
-  .adjective {
-    @apply bg-amber-100 text-amber-800;
-  }
-
-  .adverb {
-    @apply bg-purple-100 text-purple-800;
-  }
-
-  .preposition {
-    @apply bg-rose-100 text-rose-800;
-  }
-</style>
