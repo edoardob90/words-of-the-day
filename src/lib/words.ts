@@ -1,4 +1,4 @@
-import { db, Words, desc, eq } from "astro:db";
+import { db, Words, desc, eq, like, or, and } from "astro:db";
 import { languages as langConfig, type LanguageKey } from "../config";
 import { parseTranslation } from "../schema";
 
@@ -11,8 +11,38 @@ export function enrichLanguages(raw: Record<string, string>) {
     });
 }
 
-export async function getAllWords() {
-  return db.select().from(Words).orderBy(desc(Words.featured));
+export async function getWords(opts?: { q?: string; pos?: string }) {
+  const conditions = [];
+
+  if (opts?.q) {
+    const pattern = `%${opts.q}%`;
+    conditions.push(
+      or(
+        like(Words.word, pattern),
+        like(Words.meaning, pattern),
+        like(Words.origin, pattern),
+        like(Words.body, pattern),
+        like(Words.languages, pattern),
+      )!,
+    );
+  }
+
+  if (opts?.pos) {
+    conditions.push(like(Words.partOfSpeech, `%"${opts.pos}"%`));
+  }
+
+  const where =
+    conditions.length === 0
+      ? undefined
+      : conditions.length === 1
+        ? conditions[0]
+        : and(...conditions);
+
+  return db
+    .select()
+    .from(Words)
+    .where(where)
+    .orderBy(desc(Words.featured));
 }
 
 export async function getWordBySlug(slug: string) {
@@ -22,4 +52,14 @@ export async function getWordBySlug(slug: string) {
 
 export async function getAllSlugs() {
   return db.select({ slug: Words.slug }).from(Words);
+}
+
+export function getPosCounts(words: { partOfSpeech: unknown }[]) {
+  const counts: Record<string, number> = {};
+  words.map(
+    (w) => (w.partOfSpeech as string[]).map((pos) => {
+      counts[pos] = (counts[pos] ?? 0) + 1;
+    })
+  );
+  return counts;
 }

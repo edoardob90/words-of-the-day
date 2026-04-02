@@ -1,29 +1,101 @@
 ---
 export const prerender = false;
 
-import { getAllWords, enrichLanguages } from "../lib/words";
+import { getWords, enrichLanguages, getPosCounts } from "../lib/words";
+import { partsOfSpeech } from "../config";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import WordCard from "../components/WordCard.astro";
 
-const words = await getAllWords();
+const q = Astro.url.searchParams.get("q") ?? undefined;
+const pos = Astro.url.searchParams.get("pos") ?? undefined;
+
+// Fetch words based on the search query param
+const allWords = await getWords({ q });
+const counts = getPosCounts(allWords);
+const words = pos
+  ? allWords.filter((w) => (w.partOfSpeech as string[]).includes(pos))
+  : allWords;
+
+function chipHref(p?: string) {
+  const params = new URLSearchParams();
+  if (q) params.set("q", q);
+  if (p) params.set("pos", p);
+  const qs = params.toString();
+  return qs ? `/?${qs}` : "/";
+}
 ---
 
 <BaseLayout>
-    <h1 class="text-2xl font-bold mb-6">All Words</h1>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {
-            words.map((w) => (
-                <WordCard
-                    word={w.word}
-                    slug={w.slug}
-                    meaning={w.meaning ?? undefined}
-                    partOfSpeech={w.partOfSpeech as string[]}
-                    languages={enrichLanguages(w.languages as Record<string, string>)}
-                    favourite={w.favourite}
-                    isComplete={w.isComplete}
-                    featured={w.featured}
-                />
-            ))
-        }
+  <div class="flex flex-col gap-4 mb-6">
+    <div class="flex items-center justify-between">
+      <h1 class="text-2xl font-bold">
+        {q ? `Results for "${q}"` : "All Words"}
+      </h1>
+      {
+        (q || pos) && (
+          <a href="/" class="text-sm text-stone-500 hover:text-stone-700">
+            Clear filters
+          </a>
+        )
+      }
     </div>
+
+    <div class="flex flex-wrap gap-2">
+      <a
+        href={chipHref()}
+        class:list={[
+          "text-xs px-3 py-1 rounded-full transition-colors",
+          !pos
+            ? "bg-stone-900 text-white"
+            : "bg-stone-100 text-stone-600 hover:bg-stone-200",
+        ]}
+      >
+        All
+      </a>
+      {
+        partsOfSpeech.map((p) =>
+          counts[p] ? (
+            <a
+              href={chipHref(p)}
+              class:list={[
+                "text-xs px-3 py-1 rounded-full transition-colors",
+                pos === p
+                  ? "bg-stone-900 text-white"
+                  : "bg-stone-100 text-stone-600 hover:bg-stone-200",
+              ]}
+            >
+              {p}
+              <span
+                class="ml-1 text-stone-500"
+                title={`${counts[p] ?? 0} words with part of speech "${p}"`}
+              >
+                ({counts[p] ?? 0})
+              </span>
+            </a>
+          ) : null,
+        )
+      }
+    </div>
+  </div>
+
+  {
+    words.length > 0 ? (
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {words.map((w) => (
+          <WordCard
+            word={w.word}
+            slug={w.slug}
+            meaning={w.meaning ?? undefined}
+            partOfSpeech={w.partOfSpeech as string[]}
+            languages={enrichLanguages(w.languages as Record<string, string>)}
+            favourite={w.favourite}
+            isComplete={w.isComplete}
+            featured={w.featured}
+          />
+        ))}
+      </div>
+    ) : (
+      <p class="text-stone-400 text-sm">No words found.</p>
+    )
+  }
 </BaseLayout>
