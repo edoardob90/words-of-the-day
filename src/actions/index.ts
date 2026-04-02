@@ -5,8 +5,7 @@ import {
   submitInputSchema,
   updateInputSchema,
   languageKeys,
-  type SubmitInput,
-  type UpdateInput,
+  type LangEntry,
 } from "../schema";
 
 function slugify(word: string): string {
@@ -16,11 +15,18 @@ function slugify(word: string): string {
     .replace(/[^a-z0-9-]/g, "");
 }
 
-function buildLangs(input: Record<string, unknown>): Record<string, string> {
-  const langs: Record<string, string> = {};
+function buildLangs(input: Record<string, unknown>): Record<string, LangEntry> {
+  const langs: Record<string, LangEntry> = {};
   for (const k of languageKeys) {
-    const val = input[k as string] as string | undefined;
-    if (val) langs[k] = val;
+    const word = input[`${k}_word`] as string | undefined;
+    if (word) {
+      const entry: LangEntry = { word };
+      const gender = input[`${k}_gender`] as string | undefined;
+      const transliteration = input[`${k}_transliteration`] as string | undefined;
+      if (gender) entry.gender = gender;
+      if (transliteration) entry.transliteration = transliteration;
+      langs[k] = entry;
+    }
   }
   return langs;
 }
@@ -29,7 +35,7 @@ export const server = {
   submit: defineAction({
     accept: "form",
     input: submitInputSchema,
-    handler: async (input: SubmitInput, context) => {
+    handler: async (input, context) => {
       const slug = slugify(input.word);
       const now = new Date();
       const langs = buildLangs(input);
@@ -68,7 +74,7 @@ export const server = {
   update: defineAction({
     accept: "form",
     input: updateInputSchema,
-    handler: async (input: UpdateInput, context) => {
+    handler: async (input, context) => {
       const langs = buildLangs(input);
 
       try {

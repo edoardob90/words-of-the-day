@@ -2,6 +2,7 @@
 export const prerender = false;
 
 import { getWords, enrichLanguages, getPosCounts } from "../lib/words";
+import type { LangEntry } from "../schema";
 import { partsOfSpeech } from "../config";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import WordCard from "../components/WordCard.astro";
@@ -120,7 +121,7 @@ function chipHref(
             slug={w.slug}
             meaning={w.meaning ?? undefined}
             partOfSpeech={w.partOfSpeech as string[]}
-            languages={enrichLanguages(w.languages as Record<string, string>)}
+            languages={enrichLanguages(w.languages as Record<string, LangEntry>)}
             favourite={w.favourite}
             isComplete={w.isComplete}
             featured={w.featured}

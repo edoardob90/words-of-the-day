@@ -1,12 +1,18 @@
 ---
 import PartOfSpeechBadge from "./PartOfSpeechBadge.astro";
-import { Star, CircleAlert } from "@lucide/astro";
+import { Star, CircleAlert, Languages, VenusAndMars } from "@lucide/astro";
 
 interface Props {
   word: string;
   meaning?: string;
   partOfSpeech: string[];
-  languages: { name: string; emoji: string; word: string; note?: string }[];
+  languages: {
+    name: string;
+    emoji: string;
+    word: string;
+    gender?: string;
+    transliteration?: string;
+  }[];
   favourite: boolean;
   isComplete: boolean;
   created: Date;
@@ -75,13 +81,28 @@ const fmt = (d: Date) =>
     {
       languages.length > 0 ? (
         languages.map((lang) => (
-          <div class="flex items-baseline gap-3">
-            <span class="text-lg" title={lang.name}>
-              {lang.emoji}
-            </span>
-            <span class="font-medium">{lang.word}</span>
-            {lang.note && (
-              <span class="text-sm text-stone-500 italic">({lang.note})</span>
+          <div>
+            <div class="flex items-baseline gap-3">
+              <span class="text-lg" title={lang.name}>
+                {lang.emoji}
+              </span>
+              <span class="font-medium">{lang.word}</span>
+            </div>
+            {(lang.transliteration || lang.gender) && (
+              <div class="ml-5 flex items-center gap-3 text-sm text-stone-400 italic">
+                {lang.transliteration && (
+                  <span class="inline-flex items-center gap-1">
+                    <Languages size={14} />
+                    {lang.transliteration}
+                  </span>
+                )}
+                {lang.gender && (
+                  <span class="inline-flex items-center gap-1">
+                    <VenusAndMars size={14} />
+                    {lang.gender}
+                  </span>
+                )}
+              </div>
             )}
           </div>
         ))

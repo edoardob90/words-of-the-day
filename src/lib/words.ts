@@ -1,14 +1,17 @@
 import { db, Words, desc, eq, like, or, and } from "astro:db";
 import { languages as langConfig, type LanguageKey } from "../config";
-import { parseTranslation } from "../schema";
+import type { LangEntry } from "../schema";
 
-export function enrichLanguages(raw: Record<string, string>) {
+export function enrichLanguages(raw: Record<string, LangEntry>) {
   return Object.entries(raw)
-    .filter((entry): entry is [string, string] => entry[1] != null)
-    .map(([key, value]) => {
-      const lang = key as LanguageKey;
-      return { lang, ...parseTranslation(value), ...langConfig[lang] };
-    });
+    .filter(([, v]) => v != null)
+    .map(([key, entry]) => ({
+      lang: key as LanguageKey,
+      word: entry.word,
+      gender: entry.gender,
+      transliteration: entry.transliteration,
+      ...langConfig[key as LanguageKey],
+    }));
 }
 
 export async function getWords(opts?: { q?: string; pos?: string }) {

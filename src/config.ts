@@ -14,6 +14,8 @@ export const partsOfSpeech = [
 
 export type LanguageKey = keyof typeof languages;
 
+export const genders = ["masculine", "feminine", "neuter"] as const;
+
 export const posStyles = {
   Noun:        { base: "bg-blue-100 text-blue-800",   hover: "hover:bg-blue-200",   active: "bg-blue-700 text-white" },
   Verb:        { base: "bg-green-100 text-green-800",  hover: "hover:bg-green-200",  active: "bg-green-700 text-white" },

@@ -1,6 +1,7 @@
 ---
 import { actions } from "astro:actions";
-import { languages, partsOfSpeech, posStyles } from "../config";
+import { languages, partsOfSpeech, posStyles, genders } from "../config";
+import type { LangEntry } from "../schema";
 
 interface WordData {
   slug: string;
@@ -30,7 +31,7 @@ const formAction = isEdit ? actions.update : actions.submit;
 const langEntries = Object.entries(languages);
 
 const currentPos = (word?.partOfSpeech as string[]) ?? [];
-const currentLangs = (word?.languages ?? {}) as Record<string, string>;
+const currentLangs = (word?.languages ?? {}) as Record<string, LangEntry>;
 const currentFeatured = word?.featured
   ? word.featured.toISOString().split("T")[0]
   : "";
@@ -127,23 +128,46 @@ const currentFeatured = word?.featured
     </pos-picker>
   </fieldset>
 
-  <fieldset class="space-y-4">
+  <fieldset class="space-y-5">
     <legend class="text-sm font-medium">Translations</legend>
     {
-      langEntries.map(([key, { name, emoji }]) => (
-        <div>
-          <label for={key} class="block text-xs text-stone-500 mb-1">
-            {emoji} {name}
-          </label>
-          <input
-            type="text"
-            id={key}
-            name={key}
-            value={currentLangs[key] ?? ""}
-            class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
-          />
-        </div>
-      ))
+      langEntries.map(([key, { name, emoji }]) => {
+        const entry = currentLangs[key];
+        return (
+          <div class="space-y-2">
+            <label class="block text-xs text-stone-500">
+              {emoji} {name}
+            </label>
+            <input
+              type="text"
+              name={`${key}_word`}
+              placeholder="Translation"
+              value={entry?.word ?? ""}
+              class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+            />
+            <div class="flex gap-2">
+              <input
+                type="text"
+                name={`${key}_transliteration`}
+                placeholder="Transliteration"
+                value={entry?.transliteration ?? ""}
+                class="flex-1 border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+              />
+              <select
+                name={`${key}_gender`}
+                class="border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
+              >
+                <option value="">Gender</option>
+                {genders.map((g) => (
+                  <option value={g} selected={entry?.gender === g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        );
+      })
     }
   </fieldset>
 

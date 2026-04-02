@@ -2,6 +2,7 @@
 export const prerender = false;
 
 import { getWordBySlug, enrichLanguages } from "../lib/words";
+import type { LangEntry } from "../schema";
 import { marked } from "marked";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import WordDetail from "../components/WordDetail.astro";
@@ -28,7 +29,7 @@ const bodyHtml = word.body ? (marked.parse(word.body) as string) : "";
         word={word.word}
         meaning={word.meaning ?? undefined}
         partOfSpeech={word.partOfSpeech as string[]}
-        languages={enrichLanguages(word.languages as Record<string, string>)}
+        languages={enrichLanguages(word.languages as Record<string, LangEntry>)}
         favourite={word.favourite}
         isComplete={word.isComplete}
         created={word.created}

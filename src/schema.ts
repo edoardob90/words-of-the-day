@@ -1,47 +1,26 @@
 import { z } from "astro/zod";
-import { languages, type LanguageKey, partsOfSpeech } from "./config";
+import { languages, type LanguageKey, partsOfSpeech, genders } from "./config";
 
 export const languageKeys = Object.keys(languages) as [
   LanguageKey,
   ...LanguageKey[],
 ];
 
-const langShape = Object.fromEntries(
-  languageKeys.map((k) => [k, z.string().optional()]),
-) as Record<LanguageKey, z.ZodOptional<z.ZodString>>;
-
-/** Parses "word (note)" into { word, note } or just { word } */
-export function parseTranslation(value: string) {
-  const match = value.match(/^(.+)\s+\(([^)]+)\)$/);
-  if (match) return { word: match[1].trim(), note: match[2].trim() };
-  return { word: value.trim() };
+/** Per-language structured entry as stored in DB */
+export interface LangEntry {
+  word: string;
+  gender?: string;
+  transliteration?: string;
 }
 
-/** Schema for the languages record in frontmatter — flat keys, enriched via transform */
-export const languagesSchema = z
-  .object(langShape)
-  .optional()
-  .default({})
-  .transform((record) =>
-    Object.entries(record)
-      .filter((entry): entry is [string, string] => entry[1] != null)
-      .map(([key, value]) => {
-        const lang = key as LanguageKey;
-        return { lang, ...parseTranslation(value), ...languages[lang] };
-      }),
-  );
-
-/** Raw languages shape — flat keys, all optional strings */
-export const languagesInputShape = langShape;
-
-/** Shared fields that appear in both frontmatter and form submission */
-export const wordFieldsSchema = z.object({
-  word: z.string().min(1),
-  meaning: z.string().optional(),
-  partOfSpeech: z.array(z.enum(partsOfSpeech)).optional().default([]),
-  favourite: z.boolean().default(false),
-  origin: z.string().optional(),
-});
+/** Flat form field names: el_word, el_gender, el_transliteration, etc. */
+const langInputShape = Object.fromEntries(
+  languageKeys.flatMap((k) => [
+    [`${k}_word`, z.string().optional()],
+    [`${k}_gender`, z.enum(genders).optional()],
+    [`${k}_transliteration`, z.string().optional()],
+  ]),
+);
 
 /** Form submission schema — multiple POS (from checkboxes), optional body, flat language fields */
 export const submitInputSchema = z.object({
@@ -52,7 +31,7 @@ export const submitInputSchema = z.object({
   origin: z.string().optional(),
   body: z.string().optional(),
   featured: z.string().optional(),
-  ...languagesInputShape,
+  ...langInputShape,
 });
 
 export type SubmitInput = z.infer<typeof submitInputSchema>;
